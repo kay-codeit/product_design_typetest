@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>프로덕트 디자이너 성향 테스트</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@600;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;700&display=swap">
+<style>
+  /* Dark-first · annotation-pink accent · artboard canvas */
+  :root {
+    --bg: #141317;
+    --surface: #1D1B22;
+    --surface2: #272530;
+    --border: #3A3742;
+    --fg: #F3F1F6;
+    --fg-sub: #9B97A6;
+    --accent: #FF3D81;
+    --accent-soft: rgba(255,61,129,.14);
+    --grid-dot: rgba(255,255,255,.05);
+    --err: #F85149;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #FAF9FC; --surface: #fff; --surface2: #F1EEF5;
+      --border: #E3DEE9; --fg: #1C1A20; --fg-sub: #726D7E;
+      --accent: #D81B60; --accent-soft: rgba(216,27,96,.08);
+      --grid-dot: rgba(20,15,25,.045);
+      color-scheme: light;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #FAF9FC; --surface: #fff; --surface2: #F1EEF5;
+    --border: #E3DEE9; --fg: #1C1A20; --fg-sub: #726D7E;
+    --accent: #D81B60; --accent-soft: rgba(216,27,96,.08);
+    --grid-dot: rgba(20,15,25,.045);
+    color-scheme: light;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans KR', system-ui, sans-serif;
+    background-color: var(--bg);
+    background-image: radial-gradient(var(--grid-dot) 1px, transparent 1px);
+    background-size: 22px 22px;
+    color: var(--fg);
+    min-height: 100%;
+    display: flex;
+    justify-content: center;
+    padding-inline: 20px;
+    padding-block: 48px;
+  }
+
+  .wrap { width: 100%; max-width: 560px; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── SHARED ── */
+  .card {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+  }
+
+  /* artboard selection-handle corners */
+  .card::before, .res-hero::before {
+    content: "";
+    position: absolute; top: -1px; left: -1px;
+    width: 14px; height: 14px;
+    border-top: 2px solid var(--accent);
+    border-left: 2px solid var(--accent);
+    border-radius: 4px 0 0 0;
+  }
+  .card::after, .res-hero::after {
+    content: "";
+    position: absolute; bottom: -1px; right: -1px;
+    width: 14px; height: 14px;
+    border-bottom: 2px solid var(--accent);
+    border-right: 2px solid var(--accent);
+    border-radius: 0 0 4px 0;
+  }
+
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+
+  .badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .7px;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    padding: 4px 14px;
+    margin-bottom: 20px;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'IBM Plex Sans KR', system-ui, sans-serif;
+    cursor: pointer;
+    transition: opacity .15s, transform .1s;
+    margin-top: 4px;
+  }
+  .btn-primary:hover { opacity: .88; }
+  .btn-primary:active { transform: scale(.99); }
+  .btn-primary:focus-visible, .btn-back:focus-visible, .opt:focus-visible,
+  .btn-copy:focus-visible, .btn-retry:focus-visible, .field input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* ── INTRO ── */
+  .intro-top { text-align: center; margin-bottom: 32px; }
+
+  .intro-title {
+    font-family: 'Hahmlet', serif;
+    font-size: 27px;
+    font-weight: 700;
+    line-height: 1.45;
+    margin-bottom: 10px;
+    text-wrap: balance;
+  }
+
+  .intro-sub {
+    font-size: 14px;
+    color: var(--fg-sub);
+    line-height: 1.75;
+  }
+
+  .emoji-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    font-size: 40px;
+    margin: 26px 0;
+  }
+
+  .float-e {
+    display: inline-block;
+    animation: floaty 2.8s ease-in-out infinite;
+  }
+  .float-e:nth-child(2) { animation-delay: .35s; }
+  .float-e:nth-child(3) { animation-delay: .7s; }
+  .float-e:nth-child(4) { animation-delay: 1.05s; }
+  .float-e:nth-child(5) { animation-delay: 1.4s; }
+  @keyframes floaty {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  @media (prefers-reduced-motion: reduce) { .float-e { animation: none; } }
+
+  .field { margin-bottom: 18px; }
+
+  .field label {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .6px;
+    color: var(--fg-sub);
+    margin-bottom: 8px;
+  }
+
+  .field input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--fg);
+    font-size: 15px;
+    font-family: 'IBM Plex Sans KR', system-ui, sans-serif;
+    outline: none;
+    transition: border-color .2s;
+    -webkit-appearance: none;
+  }
+  .field input:focus { border-color: var(--accent); }
+
+  .err-msg {
+    font-size: 12px;
+    color: var(--err);
+    margin-top: -10px;
+    margin-bottom: 14px;
+    display: none;
+  }
+  .err-msg.show { display: block; }
+
+  /* ── QUIZ ── */
+  .prog-area { margin-bottom: 30px; }
+
+  .prog-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .prog-label, .prog-count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--fg-sub);
+    letter-spacing: .4px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ruler ticks — one per question, covered as the fill advances */
+  .prog-track {
+    position: relative;
+    height: 4px;
+    background-color: var(--surface2);
+    background-image: repeating-linear-gradient(
+      to right, var(--border) 0 1px, transparent 1px 10%
+    );
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .prog-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width .4s ease;
+  }
+
+  .q-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: .5px;
+    margin-bottom: 10px;
+  }
+
+  .q-text {
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.55;
+    margin-bottom: 22px;
+    text-wrap: balance;
+  }
+
+  .opts { display: flex; flex-direction: column; gap: 9px; }
+
+  .opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 13px 16px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    text-align: left;
+    font-size: 14px;
+    font-family: 'IBM Plex Sans KR', system-ui, sans-serif;
+    color: var(--fg);
+    line-height: 1.55;
+    width: 100%;
+  }
+  .opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .opt.sel  { border-color: var(--accent); background: var(--accent-soft); }
+
+  .opt-key {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: var(--surface2);
+    border-radius: 4px;
+    padding: 2px 7px;
+    flex-shrink: 0;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+
+  .quiz-foot {
+    display: flex;
+    gap: 10px;
+    margin-top: 26px;
+  }
+
+  .btn-back {
+    padding: 12px 18px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--fg-sub);
+    font-size: 14px;
+    font-family: 'IBM Plex Sans KR', system-ui, sans-serif;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: opacity .15s;
+  }
+  .btn-back:hover { opacity: .7; }
+
+  /* ── RESULT ── */
+  .res-hero {
+    position: relative;
+    text-align: center;
+    padding: 36px 24px 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 14px;
+  }
+
+  .res-big-emoji {
+    font-size: 80px;
+    display: block;
+    margin-bottom: 16px;
+    animation: popIn .55s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes popIn {
+    from { transform: scale(.2); opacity: 0; }
+    to   { transform: scale(1);  opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { .res-big-emoji { animation: none; } }
+
+  .res-who {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--fg-sub);
+    margin-bottom: 6px;
+  }
+
+  .res-type-name {
+    font-family: 'Hahmlet', serif;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .res-chip {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-weight: 700;
+    letter-spacing: .4px;
+  }
+
+  .res-body {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .sec-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--fg-sub);
+    letter-spacing: .9px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .res-desc {
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--fg);
+  }
+
+  .traits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .trait {
+    font-size: 13px;
+    padding: 5px 13px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--fg-sub);
+  }
+
+  .compat-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--surface2);
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--fg-sub);
+  }
+
+  .compat-icon { font-size: 24px; flex-shrink: 0; }
+
+  /* ── SHARE — styled like a redline annotation note ── */
+  .share-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px 16px 16px 4px;
+    padding: 22px;
+    margin-bottom: 12px;
+  }
+
+  .share-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--fg-sub);
+    white-space: pre-line;
+    margin-bottom: 14px;
+  }
+
+  .btn-copy {
+    width: 100%;
+    padding: 11px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--fg);
+    font-size: 13px;
+    font-family: 'IBM Plex Mono', monospace;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .btn-copy:hover { opacity: .72; }
+
+  .btn-retry {
+    width: 100%;
+    padding: 13px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--fg-sub);
+    font-size: 14px;
+    font-family: 'IBM Plex Sans KR', system-ui, sans-serif;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .btn-retry:hover { opacity: .65; }
+
+  /* ── SUBMIT STATUS ── */
+  .sub-status {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    text-align: center;
+    padding: 10px 16px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    display: none;
+    letter-spacing: .3px;
+  }
+  .sub-status.show { display: block; }
+  .sub-status.sending { color: var(--fg-sub); background: var(--surface2); border: 1px solid var(--border); }
+  .sub-status.ok   { color: #3FB950; background: rgba(63,185,80,.1); border: 1px solid rgba(63,185,80,.3); }
+  .sub-status.fail  { color: var(--err); background: rgba(248,81,73,.1); border: 1px solid rgba(248,81,73,.3); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- INTRO -->
+  <div id="sc-intro" class="screen active">
+    <div class="intro-top">
+      <span class="badge">PRODUCT DESIGN // TYPE TEST</span>
+      <h1 class="intro-title">나는 어떤 프로덕트 디자이너일까? 🔍</h1>
+      <p class="intro-sub">10개의 질문으로 알아보는<br>나의 디자인 작업 성향 유형</p>
+      <div class="emoji-row">
+        <span class="float-e">🐻</span>
+        <span class="float-e">🐧</span>
+        <span class="float-e">🐱</span>
+        <span class="float-e">🦊</span>
+        <span class="float-e">🐙</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <label for="inp-kisu">기수 // COHORT</label>
+        <input type="number" id="inp-kisu" placeholder="예) 10" min="1" max="99">
+      </div>
+      <div class="field">
+        <label for="inp-name">이름 // NAME</label>
+        <input type="text" id="inp-name" placeholder="이름을 입력해주세요">
+      </div>
+      <p class="err-msg" id="err-msg">기수와 이름을 모두 입력해주세요!</p>
+      <button class="btn-primary" onclick="startQuiz()">테스트 시작하기 →</button>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="sc-quiz" class="screen">
+    <div class="prog-area">
+      <div class="prog-meta">
+        <span class="prog-label">// PROGRESS</span>
+        <span class="prog-count" id="prog-count">1 / 10</span>
+      </div>
+      <div class="prog-track">
+        <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <p class="q-eyebrow" id="q-eyebrow">Q.01</p>
+    <p class="q-text" id="q-text"></p>
+    <div class="opts" id="opts"></div>
+
+    <div class="quiz-foot">
+      <button class="btn-back" id="btn-back" onclick="prevQ()">← 이전</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="sc-result" class="screen">
+    <div class="res-hero">
+      <span class="res-big-emoji" id="res-emoji"></span>
+      <p class="res-who" id="res-who"></p>
+      <h2 class="res-type-name" id="res-type-name"></h2>
+      <span class="res-chip" id="res-chip"></span>
+    </div>
+
+    <div class="res-body">
+      <div>
+        <p class="sec-label">// DESCRIPTION</p>
+        <p class="res-desc" id="res-desc"></p>
+      </div>
+      <div>
+        <p class="sec-label">// TRAITS</p>
+        <div class="traits" id="res-traits"></div>
+      </div>
+      <div>
+        <p class="sec-label">// 잘 맞는 유형</p>
+        <div class="compat-row">
+          <span class="compat-icon" id="res-compat-icon"></span>
+          <span id="res-compat-text"></span>
+        </div>
+      </div>
+    </div>
+
+    <div id="sub-status" class="sub-status"></div>
+
+    <div class="share-box">
+      <p class="sec-label">// SHARE</p>
+      <div class="share-text" id="share-text"></div>
+      <button class="btn-copy" id="btn-copy" onclick="copyResult()">📋 결과 복사하기</button>
+    </div>
+
+    <button class="btn-retry" onclick="resetQuiz()">↩ 다시 테스트하기</button>
+  </div>
+</div>
+
+<script>
+const QS = [
+  { q: "작업 시작 전 나의 루틴은?", opts: [
+    { k:"A", t:"딱히 정해진 루틴 없이 그날 기분대로 시작", tp:2 },
+    { k:"B", t:"유저 플로우부터 전체적으로 그려보고 시작", tp:4 },
+    { k:"C", t:"파일·프레임 네이밍부터 깔끔하게 정리하고 시작", tp:0 },
+    { k:"D", t:"핀터레스트·드리블 레퍼런스부터 쭉 훑어보기", tp:3 },
+    { k:"E", t:"기획 문서·스펙부터 정리하고 시작", tp:1 },
+  ]},
+  { q: "디자인이 이상하게 안 예뻐 보인다. 나의 첫 반응은?", opts: [
+    { k:"A", t:"바로 드리블·핀터레스트에서 비슷한 사례 검색", tp:3 },
+    { k:"B", t:"그리드·스페이싱 수치부터 하나하나 다시 체크", tp:0 },
+    { k:"C", t:"요소들 다 흩어놓고 이것저것 바꿔보기", tp:4 },
+    { k:"D", t:"일단 넘어가고 나중에 다시 봄", tp:2 },
+    { k:"E", t:"어디가 안 맞는지 적어두고 레퍼런스 리서치", tp:1 },
+  ]},
+  { q: "팀 프로젝트에서 나는 주로?", opts: [
+    { k:"A", t:"리서치도 UI도 프로토타입도 다 건드리며 돌아다님", tp:4 },
+    { k:"B", t:"기획서, 회의록, 디자인 컨벤션 정리 담당", tp:1 },
+    { k:"C", t:"막히면 레퍼런스 찾아서 팀에 공유", tp:3 },
+    { k:"D", t:"전체 플로우·IA 설계하고 역할 분배", tp:0 },
+    { k:"E", t:"맡은 화면만 내 스타일대로 조용히 완성", tp:2 },
+  ]},
+  { q: "피그마 파일 정리 스타일은?", opts: [
+    { k:"A", t:"네이밍 컨벤션 문서 만들어서 팀원한테 공유", tp:1 },
+    { k:"B", t:"레퍼런스 파일 구조 찾아서 그대로 따라함", tp:3 },
+    { k:"C", t:"레이어명, 컴포넌트명까지 완벽하게 정리", tp:0 },
+    { k:"D", t:"리서치~UI~프로토타입 섹션별로 다 쪼개서 관리", tp:4 },
+    { k:"E", t:"내가 알아볼 수 있는 정도로만, 형식은 크게 안 따짐", tp:2 },
+  ]},
+  { q: "디자인 피드백을 받았는데 수정 사항이 10개다. 나는?", opts: [
+    { k:"A", t:"핵심만 수정하고 나머지는 다음 리뷰에서", tp:2 },
+    { k:"B", t:"수정하면서 다른 화면도 같이 리디자인", tp:4 },
+    { k:"C", t:"고치면서 관련 기획 문서도 같이 업데이트", tp:1 },
+    { k:"D", t:"수정 방법 모르는 건 레퍼런스 찾아서 해결", tp:3 },
+    { k:"E", t:"하나씩 다 고치고 왜 고쳤는지 코멘트 달기", tp:0 },
+  ]},
+  { q: "프로젝트 마감 하루 전 나의 상태는?", opts: [
+    { k:"A", t:"리서치 보완하다 UI 고치다 다시 리서치", tp:4 },
+    { k:"B", t:"핵심 화면은 됐으니 나머지는 내일 아침에", tp:2 },
+    { k:"C", t:"이미 다 끝내고 최종 핸드오프 점검 중", tp:0 },
+    { k:"D", t:"드리블 탭 30개 열어놓고 참고 중", tp:3 },
+    { k:"E", t:"기획 문서 마무리하며 최종 정리 중", tp:1 },
+  ]},
+  { q: "컴포넌트·오토레이아웃 설계 스타일은?", opts: [
+    { k:"A", t:"나중에 헷갈릴 것 같은 부분에만 메모", tp:3 },
+    { k:"B", t:"네이밍, 베리언트까지 문서로 꼼꼼하게", tp:1 },
+    { k:"C", t:"리서치~비주얼 경계마다 역할 설명 메모", tp:4 },
+    { k:"D", t:"복잡한 인터랙션엔 이유까지 상세히 주석", tp:0 },
+    { k:"E", t:"내가 나중에 알아볼 수 있을 정도로만", tp:2 },
+  ]},
+  { q: "내 디자인을 남이 봤을 때 듣고 싶은 말은?", opts: [
+    { k:"A", t:'"이걸 혼자 다 했어?"', tp:4 },
+    { k:"B", t:'"오 깔끔하네, 됐다"', tp:2 },
+    { k:"C", t:'"이거 레퍼런스 어디서 찾았어? 나도 알려줘"', tp:3 },
+    { k:"D", t:'"완벽하다, 수정할 게 없다"', tp:0 },
+    { k:"E", t:'"보기 너무 편하고 기획 의도도 잘 읽힌다"', tp:1 },
+  ]},
+  { q: "새로운 툴·플러그인을 배울 때 나는?", opts: [
+    { k:"A", t:"일단 뭔가 만들어보면서 익히기", tp:2 },
+    { k:"B", t:"유튜브 튜토리얼 따라하면서 감 잡기", tp:3 },
+    { k:"C", t:"기존 작업 방식이랑 연결해서 빠르게 확장", tp:4 },
+    { k:"D", t:"학습 내용 노션에 정리하면서 공부", tp:1 },
+    { k:"E", t:"공식 문서·헬프센터 처음부터 끝까지 읽기", tp:0 },
+  ]},
+  { q: "디자인은 예쁜데 왜 이렇게 했는지 설명이 안 된다. 나는?", opts: [
+    { k:"A", t:'"그냥 감이었음" 메모 남기고 나중에 정리', tp:1 },
+    { k:"B", t:"팀원이랑 같이 다시 뜯어보며 근거 찾기", tp:4 },
+    { k:"C", t:"레퍼런스 찾아서 비슷한 근거 붙이기", tp:3 },
+    { k:"D", t:"일단 넘어감. 나중에 지적받으면 그때 보완", tp:2 },
+    { k:"E", t:"근거가 납득될 때까지 파고듦. 모호하면 찝찝", tp:0 },
+  ]},
+];
+
+const TYPES = [
+  {
+    emoji:"🐻", name:"완벽주의 곰", chip:"PERFECTIONIST",
+    color:"#E8A838", colorBg:"rgba(232,168,56,.13)",
+    desc:"피그마 파일 하나도 허투루 못 넘기는 타입이에요. 8px 그리드 하나, 컴포넌트 네이밍 하나에도 기꺼이 시간을 쏟습니다. 디자인 퀄리티는 팀 최고지만 마감은 항상 아슬아슬해요. 그래도 나온 결과물은 언제나 믿음직스럽습니다. 🐻",
+    traits:["꼼꼼함","높은 디테일","리디자인 장인","완벽주의"],
+    compatIcon:"🦊", compatText:"레퍼런스 여우 — 여우가 빠르게 방향을 잡으면 곰이 완벽하게 다듬어줘요"
+  },
+  {
+    emoji:"🐧", name:"문서화 펭귄", chip:"DOCUMENTER",
+    color:"#4ECDC4", colorBg:"rgba(78,205,196,.13)",
+    desc:"기획 문서 없으면 불안한 타입이에요. 팀원들의 영원한 MVP. 디자인보다 리서치 노트가 먼저 나오는 게 특기고, 미래의 팀원을 위해 오늘도 정성껏 기록합니다. 당신이 있는 팀은 항상 체계적입니다. 🐧",
+    traits:["체계적","소통 중심","팀의 기록자","문서화 달인"],
+    compatIcon:"🐙", compatText:"올라운더 문어 — 문어가 폭넓게 펼쳐 둔 영역을, 펭귄이 하나의 기준으로 엮어줘요"
+  },
+  {
+    emoji:"🐱", name:"내 페이스 고양이", chip:"SELF-PACED",
+    color:"#C778DD", colorBg:"rgba(199,120,221,.13)",
+    desc:"내 방식대로, 내 속도대로가 모토예요. 강요하면 도망가지만 혼자 두면 어느새 화면이 완성돼 있습니다. 독립적이고 자기 주도적이라 믿고 맡길 수 있는 타입이에요. 묵묵히 하지만 결과로 증명합니다. 🐱",
+    traits:["독립적","자기 주도","유연함","자신만의 스타일"],
+    compatIcon:"🐧", compatText:"문서화 펭귄 — 펭귄이 방향을 정리해주면 고양이가 알아서 잘 그려나가요"
+  },
+  {
+    emoji:"🦊", name:"레퍼런스 여우", chip:"RESOURCEFUL",
+    color:"#E06C75", colorBg:"rgba(224,108,117,.13)",
+    desc:"모르면 일단 서치, 찾으면 바로 적용. 디자인 속도는 팀에서 항상 상위권이에요. 가끔 왜 이렇게 했는지 설명이 막힐 때도 있지만, 결과물이 예쁘면 OK! 레퍼런스 수집 능력과 응용력만큼은 아무도 못 따라옵니다. 🦊",
+    traits:["빠른 실행","레퍼런스 수집가","응용력","결과 중심"],
+    compatIcon:"🐻", compatText:"완벽주의 곰 — 여우가 빠르게 방향을 잡으면 곰이 완벽하게 다듬어줘요"
+  },
+  {
+    emoji:"🐙", name:"올라운더 문어", chip:"FULL-CYCLE",
+    color:"#61AFEF", colorBg:"rgba(97,175,239,.13)",
+    desc:"손이 8개라 리서치도 UI도 프로토타입도 다 건드리는 타입이에요. 전체 그림을 보는 눈이 있고 다양한 영역을 연결하는 게 특기입니다. 가끔 다 엉키기도 하지만, 팀에 한 명은 꼭 있어야 하는 소중한 존재예요. 🐙",
+    traits:["넓은 시야","멀티태스킹","연결고리","풀사이클 감각"],
+    compatIcon:"🐧", compatText:"문서화 펭귄 — 문어가 폭넓게 펼쳐 둔 영역을, 펭귄이 하나의 기준으로 엮어줘요"
+  },
+];
+
+const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyHxnpKUftiCCkLOMfSC8GNEv3TzcjZQ0kNsKvCVwaKx7PRmCUJkTNH_MVb1U5oh-prrg/exec';
+
+const TOTAL = 10;
+let curQ = 0, answers = new Array(TOTAL).fill(null), userName = "", userKisu = "", locked = false;
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function startQuiz() {
+  const kisu = document.getElementById('inp-kisu').value.trim();
+  const name = document.getElementById('inp-name').value.trim();
+  const err = document.getElementById('err-msg');
+  if (!kisu || !name) { err.classList.add('show'); return; }
+  err.classList.remove('show');
+  userKisu = kisu; userName = name;
+  curQ = 0; answers = new Array(TOTAL).fill(null); locked = false;
+  show('sc-quiz');
+  renderQ();
+}
+
+function renderQ() {
+  const q = QS[curQ];
+  document.getElementById('prog-count').textContent = `${curQ+1} / ${TOTAL}`;
+  document.getElementById('prog-fill').style.width = `${(curQ/TOTAL)*100}%`;
+  document.getElementById('q-eyebrow').textContent = `Q.${String(curQ+1).padStart(2,'0')}`;
+  document.getElementById('q-text').textContent = q.q;
+
+  const list = document.getElementById('opts');
+  list.innerHTML = '';
+  q.opts.forEach((o, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt' + (answers[curQ] === i ? ' sel' : '');
+    btn.innerHTML = `<span class="opt-key">${o.k}</span><span>${o.t}</span>`;
+    btn.onclick = () => pick(i);
+    list.appendChild(btn);
+  });
+
+  document.getElementById('btn-back').style.visibility = curQ === 0 ? 'hidden' : 'visible';
+}
+
+function pick(i) {
+  if (locked) return;
+  locked = true;
+  answers[curQ] = i;
+  document.querySelectorAll('.opt').forEach((b, idx) => b.classList.toggle('sel', idx === i));
+  // 잠깐 선택 표시 후 자동 이동
+  setTimeout(() => {
+    locked = false;
+    if (curQ < TOTAL - 1) { curQ++; renderQ(); }
+    else showResult();
+  }, 320);
+}
+
+function prevQ() {
+  if (curQ > 0) { curQ--; renderQ(); }
+}
+
+function showResult() {
+  const scores = [0,0,0,0,0];
+  answers.forEach((a, qi) => { if (a !== null) scores[QS[qi].opts[a].tp]++; });
+  const maxScore = Math.max(...scores);
+  const topTypes = scores.reduce((acc, s, i) => { if (s === maxScore) acc.push(i); return acc; }, []);
+  const best = topTypes[Math.floor(Math.random() * topTypes.length)];
+  const t = TYPES[best];
+
+  document.getElementById('res-emoji').textContent = t.emoji;
+  document.getElementById('res-who').textContent = `${userKisu}기 · ${userName}`;
+  document.getElementById('res-type-name').textContent = t.name;
+
+  const chip = document.getElementById('res-chip');
+  chip.textContent = t.chip;
+  chip.style.cssText = `background:${t.colorBg};color:${t.color};border:1px solid ${t.color}`;
+
+  document.getElementById('res-desc').textContent = t.desc;
+  document.getElementById('res-traits').innerHTML = t.traits.map(tr => `<span class="trait">${tr}</span>`).join('');
+  document.getElementById('res-compat-icon').textContent = t.compatIcon;
+  document.getElementById('res-compat-text').textContent = t.compatText;
+
+  document.getElementById('share-text').textContent =
+    `// 프로덕트 디자이너 성향 테스트 결과\n나는 ${t.emoji} ${t.name}!\n${userKisu}기 ${userName}\n\n"${t.traits.join(' · ')}"\n\n잘 맞는 유형: ${t.compatIcon} ${t.compatText}\n\n#프로덕트디자인 #PD성향테스트`;
+
+  show('sc-result');
+  submitResult(t);
+}
+
+function submitResult(t) {
+  const el = document.getElementById('sub-status');
+  el.className = 'sub-status show sending';
+  el.textContent = '⏳ 결과 저장 중...';
+
+  fetch(WEBHOOK_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ kisu: userKisu, name: userName, typeEmoji: t.emoji, typeName: t.name })
+  })
+  .then(() => {
+    el.className = 'sub-status show ok';
+    el.textContent = '✅ 결과가 시트에 저장됐어요!';
+  })
+  .catch(() => {
+    el.className = 'sub-status show fail';
+    el.textContent = '⚠️ 저장 실패 (결과는 확인 가능해요)';
+  });
+}
+
+function copyResult() {
+  const text = document.getElementById('share-text').textContent;
+  const btn = document.getElementById('btn-copy');
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✅ 복사 완료!';
+    setTimeout(() => { btn.textContent = '📋 결과 복사하기'; }, 2000);
+  }).catch(() => {
+    btn.textContent = '위 텍스트를 직접 복사해주세요';
+    setTimeout(() => { btn.textContent = '📋 결과 복사하기'; }, 2500);
+  });
+}
+
+function resetQuiz() {
+  document.getElementById('inp-kisu').value = '';
+  document.getElementById('inp-name').value = '';
+  show('sc-intro');
+}
+</script>
+</body>
+</html>
